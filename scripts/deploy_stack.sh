@@ -13,8 +13,21 @@ source "${ENV_FILE}"
 
 ACTION="${1:-start}"
 
+run_docker() {
+  if docker info >/dev/null 2>&1; then
+    docker "$@"
+  else
+    local escaped=()
+    local arg
+    for arg in "$@"; do
+      escaped+=("$(printf '%q' "$arg")")
+    done
+    sg docker -c "docker ${escaped[*]}"
+  fi
+}
+
 stop_stack() {
-  docker rm -f "${GATEWAY_CONTAINER}" "${MULTIMODAL_CONTAINER}" "${REASONING_CONTAINER}" >/dev/null 2>&1 || true
+  run_docker rm -f "${GATEWAY_CONTAINER}" "${MULTIMODAL_CONTAINER}" "${REASONING_CONTAINER}" >/dev/null 2>&1 || true
 }
 
 wait_for_ready() {
@@ -26,10 +39,25 @@ wait_for_ready() {
   until curl -fsS "http://127.0.0.1:${port}/v1/models" >/dev/null 2>&1; do
     if (( i > retries )); then
       echo "Timed out waiting for ${name} on port ${port}."
-      docker logs "${name}" | tail -n 120 || true
+      run_docker logs "${name}" | tail -n 120 || true
       return 1
     fi
     sleep 5
+    ((i++))
+  done
+}
+
+wait_for_gateway_ready() {
+  local retries=60
+  local i=1
+
+  until curl -fsS "http://127.0.0.1:${PUBLIC_PORT}/v1/models" >/dev/null 2>&1; do
+    if (( i > retries )); then
+      echo "Timed out waiting for gateway on port ${PUBLIC_PORT}."
+      run_docker logs "${GATEWAY_CONTAINER}" | tail -n 120 || true
+      return 1
+    fi
+    sleep 1
     ((i++))
   done
 }
@@ -57,8 +85,8 @@ if [[ "${ACTION}" == "restart" ]]; then
 fi
 
 echo "Starting reasoning backend on ${REASONING_PORT}..."
-docker rm -f "${REASONING_CONTAINER}" >/dev/null 2>&1 || true
-docker run -d \
+run_docker rm -f "${REASONING_CONTAINER}" >/dev/null 2>&1 || true
+run_docker run -d \
   --name "${REASONING_CONTAINER}" \
   --restart unless-stopped \
   --gpus all \
@@ -75,8 +103,8 @@ docker run -d \
   bash -lc "trtllm-serve ${MODEL_REASONING_ID} --backend pytorch --host 0.0.0.0 --port ${REASONING_PORT} --config /configs/reasoning.yaml"
 
 echo "Starting multimodal backend on ${MULTIMODAL_PORT}..."
-docker rm -f "${MULTIMODAL_CONTAINER}" >/dev/null 2>&1 || true
-docker run -d \
+run_docker rm -f "${MULTIMODAL_CONTAINER}" >/dev/null 2>&1 || true
+run_docker run -d \
   --name "${MULTIMODAL_CONTAINER}" \
   --restart unless-stopped \
   --gpus all \
@@ -97,8 +125,8 @@ wait_for_ready "${REASONING_CONTAINER}" "${REASONING_PORT}"
 wait_for_ready "${MULTIMODAL_CONTAINER}" "${MULTIMODAL_PORT}"
 
 echo "Starting unified gateway on ${PUBLIC_PORT}..."
-docker rm -f "${GATEWAY_CONTAINER}" >/dev/null 2>&1 || true
-docker run -d \
+run_docker rm -f "${GATEWAY_CONTAINER}" >/dev/null 2>&1 || true
+run_docker run -d \
   --name "${GATEWAY_CONTAINER}" \
   --restart unless-stopped \
   --network host \
@@ -113,6 +141,9 @@ docker run -d \
   -v "${ROOT_DIR}/gateway:/router:ro" \
   "${TRTLLM_IMAGE}" \
   python3 /router/router.py
+
+echo "Waiting for gateway readiness..."
+wait_for_gateway_ready
 
 echo "Deployment complete."
 echo "Public endpoint: http://127.0.0.1:${PUBLIC_PORT}"

@@ -12,6 +12,19 @@ fi
 
 source "${ENV_FILE}"
 
+run_docker() {
+  if docker info >/dev/null 2>&1; then
+    docker "$@"
+  else
+    local escaped=()
+    local arg
+    for arg in "$@"; do
+      escaped+=("$(printf '%q' "$arg")")
+    done
+    sg docker -c "docker ${escaped[*]}"
+  fi
+}
+
 check_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     echo "Missing required command: $1"
@@ -29,17 +42,17 @@ echo "[2/6] Validating GPU visibility..."
 nvidia-smi >/dev/null
 
 echo "[3/6] Validating Docker daemon access..."
-docker info >/dev/null
+run_docker info >/dev/null
 
 echo "[4/6] Validating GPU container support in Docker..."
-if ! docker run --rm --gpus all nvidia/cuda:12.6.3-base-ubuntu24.04 nvidia-smi >/dev/null 2>&1; then
+if ! run_docker run --rm --gpus all nvidia/cuda:12.6.3-base-ubuntu24.04 nvidia-smi >/dev/null 2>&1; then
   echo "Docker GPU container test failed."
   echo "Configure nvidia-container-toolkit and Docker GPU support, then retry."
   exit 1
 fi
 
 echo "[5/6] Pulling pinned TensorRT-LLM image: ${TRTLLM_IMAGE}"
-docker pull "${TRTLLM_IMAGE}"
+run_docker pull "${TRTLLM_IMAGE}"
 
 echo "[6/6] Checking HF token presence..."
 if [[ -z "${HF_TOKEN:-}" ]]; then

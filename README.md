@@ -1,5 +1,24 @@
 # DGX Spark TensorRT-LLM Phi-4 Hosting Stack
 
+## Re-Image / Re-Deploy (Run First)
+
+Use this exact sequence on a fresh image:
+
+```bash
+cp env/.env.example .env
+nano .env                    # set HF_TOKEN and keep pinned defaults
+./scripts/setup_fresh_image.sh
+./scripts/deploy_stack.sh start
+./scripts/healthcheck.sh
+./scripts/health_report_json.sh ?compact | python3 -m json.tool
+```
+
+Open UI after health passes:
+
+```bash
+xdg-open http://127.0.0.1:8080/
+```
+
 This repository deploys a **single unified OpenAI-compatible endpoint** on a DGX Spark/GB10 host while serving two TensorRT-LLM model backends:
 
 - `nvidia/Phi-4-reasoning-plus-FP8`
