@@ -2,7 +2,10 @@
 
 ## Re-Image / Re-Deploy (Run First)
 
-Use this exact sequence on a fresh image:
+Manage with https://build.nvidia.com/spark/connect-to-your-spark/sync Nvidia sync
+Use this exact sequence on a fresh image, remember to clear SSH keys if using Nvidia sync on a rebuild with same host info
+on windows at C:\Users\$user\AppData\Local\NVIDIA Corporation\Sync\config 
+Delete nvsync.key
 
 ```bash
 cp env/.env.example .env
