@@ -1,0 +1,5 @@
+backend: pytorch
+max_batch_size: 8
+max_num_tokens: 8192
+kv_cache_config:
+  free_gpu_memory_fraction: 0.55

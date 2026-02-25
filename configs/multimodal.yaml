@@ -1,0 +1,6 @@
+backend: pytorch
+max_batch_size: 4
+max_num_tokens: 4096
+kv_cache_config:
+  free_gpu_memory_fraction: 0.4
+  enable_block_reuse: false
