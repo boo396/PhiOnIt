@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>I got Phi on it</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <main class="app-shell">
+      <header class="title-wrap">
+        <h1 class="small-title" aria-label="I got Phi on it">
+          <span class="word">I</span><span class="word">GOT</span><span class="word">PHI</span><span class="word">ON</span><span class="word">IT</span>
+        </h1>
+
+        <pre class="ascii-title" aria-label="I GOT PHI ON IT ASCII art">
+      ░█▀▀█ ░█▀▀▀█ ▀▀█▀▀    ░█▀▀█ ░█──░█ ▀█▀    ░█▀▀▀█ ░█▄─░█    ▀█▀ ▀▀█▀▀
+      ░█─▄▄ ░█──░█ ─░█──    ░█▄▄█ ░█▀▀▀█ ░█─    ░█──░█ ░█░█░█    ░█─ ─░█──
+      ░█▄▄█ ░█▄▄▄█ ─░█──    ░█─── ░█──░█ ▄█▄    ░█▄▄▄█ ░█──▀█    ▄█▄ ─░█──
+
+      I   G O T   P H I   O N   I T
+        </pre>
+
+        <section class="nuclear-info" aria-label="capacity status">
+          <div class="nuclear-core">☢ clear info • quicker loads • more models • get 2nd GB10 ☢</div>
+        </section>
+      </header>
+
+      <section class="terminal-panel" aria-label="query and return panel">
+        <div class="terminal-header">ANSWER HEADER</div>
+        <div id="terminalResponse" class="terminal-response">Awaiting query...</div>
+        <div id="terminalMeta" class="terminal-meta">&gt;&gt;model name returned query in&lt;&lt;</div>
+        <form id="queryForm" class="terminal-form">
+          <label for="queryInput" class="sr-only">query input</label>
+          <span class="prompt">query&gt;</span>
+          <span id="activeHintChip" class="active-hint-chip">no hint</span>
+          <input id="queryInput" name="query" type="text" autocomplete="off" placeholder="Ask the router..." />
+          <button type="submit">Send It!</button>
+        </form>
+      </section>
+
+      <section class="upload-zone">
+        <button id="uploadPlaceholder" type="button">Upload file (placeholder)</button>
+        <div id="uploadHintDisplay" class="upload-hint-display">no image hint set</div>
+      </section>
+
+      <section class="terminal-side" aria-label="terminal output">
+        <div class="side-header">TERMINAL OUTPUT</div>
+        <pre id="sideTail" class="side-tail"></pre>
+      </section>
+
+      <section id="telemetryStrip" class="telemetry-strip" aria-label="system telemetry">
+        <div class="telemetry-title">DGX LIVE TELEMETRY <span id="memoryStatInline">MEM N/A</span></div>
+
+        <div class="gauge-row">
+          <article class="speed-gauge" aria-label="system memory gauge">
+            <svg class="gauge-scope" viewBox="0 0 1000 180" preserveAspectRatio="none" aria-hidden="true">
+              <line class="scope-redline" x1="0" y1="36" x2="1000" y2="36"></line>
+              <text id="scopeMemoryRedlineLabel" class="scope-redline-label" x="992" y="30" text-anchor="end">CPU MAX CLOCK</text>
+              <polyline id="scopeLineMemoryBox" class="scope-line scope-line-memory" points="0,130 1000,130"></polyline>
+              <circle id="scopePulseMemoryBox" class="scope-pulse scope-pulse-memory" cx="1000" cy="130" r="4"></circle>
+            </svg>
+            <div class="gauge-label">CPU CLOCK</div>
+            <div class="dial-wrap">
+              <div class="dial-arc"></div>
+              <div id="memoryNeedle" class="needle"></div>
+              <div class="needle-cap"></div>
+            </div>
+            <div id="memoryValue" class="gauge-value">N/A</div>
+          </article>
+
+          <article class="speed-gauge" aria-label="gpu utilization gauge">
+            <svg class="gauge-scope" viewBox="0 0 1000 180" preserveAspectRatio="none" aria-hidden="true">
+              <line class="scope-redline" x1="0" y1="36" x2="1000" y2="36"></line>
+              <text id="scopeGpuRedlineLabel" class="scope-redline-label" x="992" y="30" text-anchor="end">GPU MAX CLOCK</text>
+              <polyline id="scopeLineGpuBox" class="scope-line scope-line-cpu" points="0,130 1000,130"></polyline>
+              <circle id="scopePulseGpuBox" class="scope-pulse scope-pulse-cpu" cx="1000" cy="130" r="4"></circle>
+            </svg>
+            <div class="gauge-label">GPU CLOCK</div>
+            <div class="dial-wrap">
+              <div class="dial-arc"></div>
+              <div id="gpuNeedle" class="needle"></div>
+              <div class="needle-cap"></div>
+            </div>
+            <div id="gpuValue" class="gauge-value">N/A</div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="mockUploadDialog">
+      <p>future file upload</p>
+      <label for="uploadImageUrl">image_url</label>
+      <input id="uploadImageUrl" type="text" placeholder="https://..." autocomplete="off" />
+      <label for="uploadImagePath">image_path</label>
+      <input id="uploadImagePath" type="text" placeholder="/tmp/example.png" autocomplete="off" />
+      <div class="dialog-actions">
+        <button id="saveUploadHints" type="button">set</button>
+        <button id="clearUploadHints" type="button">clear</button>
+        <button id="closeMockUpload" type="button">close</button>
+      </div>
+    </dialog>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

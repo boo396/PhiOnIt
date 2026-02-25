@@ -115,6 +115,21 @@ Expected names:
 curl -s http://127.0.0.1:8080/v1/models | python3 -m json.tool
 ```
 
+### 5.2a Open web frontend
+
+```bash
+xdg-open http://127.0.0.1:8080/
+```
+
+### 5.2b Validate MLP-compatible route endpoint
+
+```bash
+curl -s http://127.0.0.1:8080/route \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Give a concise explanation of transformer KV cache.","has_image":false}' \
+  | python3 -m json.tool
+```
+
 ### 5.3 Text inference test
 
 ```bash

@@ -12,6 +12,8 @@ The implementation is pinned to a **container-only workflow** and aligned to the
 - Backend 1 (`trtllm-serve`): reasoning model on `127.0.0.1:8355`
 - Backend 2 (`trtllm-serve`): multimodal model on `127.0.0.1:8356`
 - Unified gateway: public endpoint on `0.0.0.0:8080` routing by `model`
+- MLP-compatible router endpoint: `POST /route` (auto-selects model and invokes backend)
+- Web frontend: `GET /` with static assets under `GET /static/*`
 
 ## Files
 
@@ -52,6 +54,12 @@ The implementation is pinned to a **container-only workflow** and aligned to the
    curl -s http://127.0.0.1:8080/v1/models | python3 -m json.tool
    ```
 
+  Open the web frontend:
+
+  ```bash
+  xdg-open http://127.0.0.1:8080/
+  ```
+
 5. Stop stack when needed:
 
    ```bash
@@ -83,6 +91,17 @@ The implementation is pinned to a **container-only workflow** and aligned to the
   ```
 
 ## Example requests
+
+MLP-compatible route API (used by frontend):
+
+```bash
+curl -s http://127.0.0.1:8080/route \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Explain the difference between throughput and latency.",
+    "has_image": false
+  }' | python3 -m json.tool
+```
 
 Reasoning model:
 
