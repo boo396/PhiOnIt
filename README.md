@@ -72,6 +72,18 @@ The implementation is pinned to a **container-only workflow** and aligned to the
    ./scripts/setup_fresh_image.sh
    ```
 
+### 2.1 Post-update validation (after reboot)
+
+Run these checks before deploy if host packages/drivers were updated:
+
+```bash
+nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
+docker --version
+docker run --rm --gpus all "$(grep '^TRTLLM_IMAGE=' .env | cut -d= -f2-)" nvidia-smi | head -n 20
+```
+
+Expected outcome: host GPU is visible, Docker is reachable, and GPU passthrough works inside the pinned TRT-LLM image.
+
 3. Deploy stack:
 
    ```bash
