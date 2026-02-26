@@ -9,11 +9,12 @@ Delete nvsync.key
 
 ```bash
 cp env/.env.example .env
-nano .env                    # set HF_TOKEN and keep pinned defaults
+nano .env                    # set HF_TOKEN, keep digest pin, set STRICT_DOCKER_DIRECT=1 for fail-fast
+grep -E '^(TRTLLM_IMAGE|STRICT_DOCKER_DIRECT|MODEL_REASONING_ID|MODEL_MULTIMODAL_ID)=' .env
 ./scripts/setup_fresh_image.sh
 ./scripts/deploy_stack.sh start
 ./scripts/healthcheck.sh
-./scripts/health_report_json.sh ?compact | python3 -m json.tool
+./scripts/health_report_json.sh compact | python3 -m json.tool
 ```
 
 Open UI after health passes:
@@ -56,7 +57,14 @@ The implementation is pinned to a **container-only workflow** and aligned to the
    nano .env
    ```
 
-   Set `HF_TOKEN=<your_huggingface_token>`.
+  Set `HF_TOKEN=<your_huggingface_token>`.
+  For strict runs, set `STRICT_DOCKER_DIRECT=1`.
+
+  Verify effective pins:
+
+  ```bash
+  grep -E '^(TRTLLM_IMAGE|STRICT_DOCKER_DIRECT|MODEL_REASONING_ID|MODEL_MULTIMODAL_ID)=' .env
+  ```
 
 2. Run fresh-image setup:
 
@@ -162,4 +170,5 @@ curl -s http://127.0.0.1:8080/v1/chat/completions \
 - Multimodal serving is configured conservatively with `kv_cache_config.enable_block_reuse: false`.
 - Use only the pinned image in `.env` to keep setup reproducible across fresh nodes.
 - First startup can take longer while model artifacts are downloaded to `./data/hf-cache`.
-- If your shell session does not have direct Docker socket access, the healthcheck script automatically falls back to `sg docker`.
+- `STRICT_DOCKER_DIRECT=1` enforces fail-fast behavior if direct Docker socket access is unavailable.
+- `STRICT_DOCKER_DIRECT=0` allows script fallback via `sg docker`.
