@@ -31,6 +31,14 @@ Edit `.env`:
 
 - Set `HF_TOKEN`
 - Keep image and model IDs pinned unless you are intentionally updating
+- Keep `TRTLLM_IMAGE` digest-pinned for reproducible builds
+- Set `STRICT_DOCKER_DIRECT=1` for fail-fast runs (no `sg docker` fallback)
+
+Validate effective pins before setup:
+
+```bash
+grep -E '^(TRTLLM_IMAGE|STRICT_DOCKER_DIRECT|MODEL_REASONING_ID|MODEL_MULTIMODAL_ID)=' .env
+```
 
 ## 3) Fresh-image setup
 
@@ -48,6 +56,11 @@ What it does:
 4. Pulls pinned TensorRT-LLM image
 5. Verifies `HF_TOKEN` is present
 6. Prepares cache/log directories
+
+`STRICT_DOCKER_DIRECT` behavior:
+
+- `0` (default): script can fall back to `sg docker` if direct Docker access fails
+- `1`: script fails fast if `docker info` is not directly accessible
 
 ## 4) Deploy full stack
 
@@ -69,6 +82,11 @@ Lifecycle commands:
 ./scripts/deploy_stack.sh restart
 ./scripts/deploy_stack.sh stop
 ```
+
+`STRICT_DOCKER_DIRECT` behavior matches setup and health scripts:
+
+- `0` (default): allows `sg docker` fallback path
+- `1`: fail fast on direct Docker access errors
 
 ## 5) Validate deployment
 
