@@ -14,9 +14,15 @@ source "${ENV_FILE}"
 ACTION="${1:-start}"
 
 run_docker() {
+  local strict_mode="${STRICT_DOCKER_DIRECT:-0}"
   if docker info >/dev/null 2>&1; then
     docker "$@"
   else
+    if [[ "${strict_mode}" == "1" ]]; then
+      echo "Direct Docker access required (STRICT_DOCKER_DIRECT=1), but docker info failed."
+      echo "Fix Docker socket permissions for the current user and retry."
+      return 1
+    fi
     local escaped=()
     local arg
     for arg in "$@"; do
